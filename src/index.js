@@ -10,3 +10,9 @@ ReactDOM.render(
   </React.StrictMode>,
   document.getElementById('root')
 );
+
+// { 
+//   method: method, 
+//   headers: { "Content-Type": "application/json" },
+//   body: JSON.stringify(data)
+// }

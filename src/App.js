@@ -1,40 +1,69 @@
-import React, { Component, useEffect, useState } from 'react'
-import TodoList from './components/TodoList'
-import { createTodo, getAllTodos } from './services/TodoService'
-// import TodoForm from './components/TodoForm';
+import React, { useEffect, useState } from 'react'
+import NewProductForm from './NewProductForm'
+import TaskList from './TaskList'
+
+
 
 export default function App() {
-	const [todoList, setTodoList] = useState([])
+	const [products, setProducts] = useState( [] )
 
-	const refreshTodos = async () => {
-		const freshTodos = await getAllTodos(); // get the data from the backend
-		setTodoList(freshTodos)
+	const fetchAllProducts = async () => {
+		const response = await fetch("http://localhost:3004/products")
+		const data = await response.json();
+		setProducts(data);
 	}
 
 	useEffect(() => {
-		refreshTodos();
-	}, []) // the empty array tells useEffect to only run the function after the first render and never again
+		fetchAllProducts();
+	}, []) // only run once after the first render
 
-	const addTodo = async (newTodo) => {
-		await createTodo(newTodo);
-		refreshTodos();
+
+	// const createProduct = async () => {
+	// 	const newProduct = {
+	// 		name: "Something",
+	// 		price: 5000
+	// 	}
+		
+	// 	// UPDATING THE DATA ON THE BACKEND
+	// 	const response = await fetch("http://localhost:3004/products", {
+	// 		method: "POST",
+	// 		headers: { "Content-Type": "application/json" },
+	// 		body: JSON.stringify(newProduct)
+	// 	})
+	// 	const newlyCreatedProduct = await response.json();
+
+	// 	// OPTION 1 - REFRESH IT ALL
+	// 	//fetchAllProducts();
+
+		
+	// 	// OPTION 2 - UPDATING THE DATA ON THE FRONT END
+	// 	setProducts([...products, newlyCreatedProduct])
+	// }
+
+	const createProductFromForm = (newProductData) => {
+
+			
+		// OPTION 2 - UPDATING THE DATA ON THE FRONT END
+		setProducts([...products, newProductData])
 	}
 
 	return (
 		<div className="container mt-3">
 			<div className="row mb-3">
 				<div className="col">
-					<h2>Tah Dah</h2>
+					<h2>You Should Do Stuff</h2>
 				</div>
 				<div className="col">
-					<button className="btn btn-success float-end" >New Todo</button>
+					{/* <button className="btn btn-success float-end" onClick={createProduct} >Create Product</button> */}
 				</div>
 			</div>
 			<div className="row">
-				{/* <TodoList todoList={todoList}/> */}
+				<NewProductForm onSubmit={createProductFromForm} />
+				<ul>
+					{ products.map(product => <li>{ product.name }</li>)}
+				</ul>
 			</div>
 		</div>
 	)
 }
-
 
