@@ -1,29 +1,37 @@
 import React, { useEffect, useState } from 'react'
-import { getProducts } from './ProductsService'
+import ProductRow from './ProductRow'
 
 export default function App() {
-	const [products, setProducts] = useState( [] )
+	const [productList, setProductList] = useState( [] )
 
-	const fetchAllProducts = async () => {
-		const freshProducts = await getProducts();
-		setProducts(freshProducts);
+	const refreshProducts = async () => {
+		const response = await fetch("http://localhost:3001/products")
+		const data = await response.json()
+		setProductList(data); // take the data, put it in our state, which triggers a rerender, which will then show the data
 	}
 
 	useEffect(() => {
-		fetchAllProducts()
-	}, []) // run only one time, after the first render
+        refreshProducts();
+    }, []) // empty dependency array = only run once, when the component FIRST loads in
 
-	const deleteProduct = async (idToDelete) => {
-		// OPTION 1 - Delete from frontend as well
-		setProducts( products.filter(product => product.id !== idToDelete) )
+	const onCreateClick = async () => {
+		const newProduct = {
+			name: "Birthday Cards",
+			price: 10
+		}
 
-		// Delete from the backend
-		const response = await fetch("http://localhost:3004/products/" + idToDelete, { method: "DELETE" })
-		// Just for fun, making sure it worked
-		console.log("Was response okay?", response.ok)
+		// BACKEND CHANGE (have to await if you're using OPTION 1)
+		await fetch("http://localhost:3001/products", {
+			method: "POST", 
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(newProduct)
+		})
 
-		// OPTION 2 - Refresh from the backend
-		//fetchAllProducts()
+		// OPTION 2: FRONTEND CHANGE AS WELL
+		//setProductList( productList.concat(newProduct) )
+
+		// OPTION 1: REFRESH THE FRONTEND FROM BACKEND
+		refreshProducts();
 	}
 
 	return (
@@ -33,24 +41,16 @@ export default function App() {
 					<h2>Products</h2>
 				</div>
 				<div className="col">
-					<button className="btn btn-success float-end">Fetch Products</button>
+					<button className="btn btn-success float-end" onClick={onCreateClick}>Create Product</button>
 				</div>
 			</div>
 			<div className="row">
 				<div className="col">
-					<ul>
-						{ products.map(product => 
-							<li key={product.id}>
-								<button className="btn btn-sm btn-danger me-2" onClick={() => deleteProduct(product.id)}>Delete</button>
-								{ product.name }
-							</li>
-						)}
+					<ul className="list-group">
+						{ productList.map(product => <ProductRow product={product} key={product.id}/>)}
 					</ul>
 				</div>
 			</div>
 		</div>
 	)
 }
-
-
-
