@@ -1,85 +1,88 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from "react"
+
 
 export default function App() {
     const [products, setProducts] = useState([])
-    const [loading, setLoading] = useState(false)
-    const [error, setError] = useState(null)
 
-    useEffect(() => {
-        const getAllProducts = async () => {
-            setLoading(true)
-            const response = await fetch("http://localhost:3004/products")
-            const data = await response.json()
-            setLoading(false)
-            setProducts(data)
-        }
-        getAllProducts()
-    }, []) // run this little function once when this component first loads in, and never again
-
-    
-
-    const deleteProduct = async (id) => {
-        // Changing it on the backend
-        setLoading(true)
-        try {
-            const response = await fetch("http://localhost:3004/products/" + id, {
-                method: "DELETE"
-            })
-            setError(null)
-            // Changing it on the frontend
-            setProducts( products.filter(p => p.id !== id)  )
-        } catch(error) {
-            setError("There was an error!")
-        }
-        setLoading(false)
-
-        
+    const refreshProducts = async () => {
+        const response = await fetch("http://localhost:3004/products")
+        const freshData = await response.json()
+        setProducts(freshData)
     }
 
-    const details = { something: 3, hello: 5 }
+    const featuredProduct = products[0]
+    console.log(featuredProduct)
+
+    // by the way, could you do this later when you have time?
+    useEffect(() => {
+        refreshProducts()
+    }, []) // there's no reason to ever run again
+
+    const createProduct = async (newProduct) => {
+
+        // make that same change on the backend
+        const response = await fetch("http://localhost:3004/products", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newProduct)
+        })
+        const newProductWithId = await response.json()
+
+        // OPTION 1
+        // make the change on the frontend
+        setProducts([...products, newProductWithId])
+
+        // OPTION 2
+        // refreshProducts()
+
+    }
+
+    const deleteProduct = async (idToDelete) => {
+
+        // make that same change on the backend
+        await fetch("http://localhost:3004/products/" + idToDelete, {
+            method: "DELETE"
+        })
+
+        // OPTION 1
+        // make the change on the frontend
+        setProducts(products.filter(p => p.id !== idToDelete))
+
+        // OPTION 2
+        // refreshProducts()
+
+    }
 
     return (
         <div>
-            App
-            { loading ? <p>Loading...</p> : null }
-            { error ? <p>{error}</p> : null }
-            <ProductList productList={products} anotherProp={details} handleDelete={deleteProduct} loading={loading} />
+            <button onClick={() => createProduct({ name: "Wheat", price: 30 })}>Create Wheat</button>
+            <h1>Featured: { featuredProduct ? featuredProduct.name : null }</h1>
+            {products.map(p => (
+                <div key={p.id}>
+                    {p.name}
+                    <button className="btn btn-danger" onClick={() => deleteProduct(p.id)}>Delete</button>
+                </div>
+            ))}
         </div>
     )
 }
 
-function ProductList({ productList, anotherProp, handleDelete, loading }) { // productList = [ { id: 0, title: "Shoes" } ]; anotherProp = { something: 3, hello: 5 }
-    return (
-        <ul>
-            { productList.map(p => <ProductItem key={p.id} product={p} onDelete={handleDelete} loading={loading}/>)}
-        </ul>
-    )
-}
 
-function ProductItem({ product, onDelete, loading }) {
-    return (
-        <li>
-            {product.name}
-            <button disabled={loading} onClick={() => onDelete(product.id)}>Delete</button>
-        </li>
-    )
-}
-
-
-
-
-// In the background, with React, we don't write this code
-// const productListProps = {
-//     productList: [ { id: 0, title: "Shoes" } ],
-//     anotherProp: { something: 3, hello: 5 }
-// }
-// ProductList(productListProps)
-
-
-
-// function getMeal() {
-//     return ["spaghetti", "ice cream"]
+// props = {
+//     color: "black",
+//     size: "lg",
+//     user: { name: "Natalie", isAdmin: true }
 // }
 
 
-// const [healthyBit, goodBit] = getMeal()
+
+//
+
+// const { name, isAdmin } = user
+
+
+// function getTastyFood() {
+//     return [CURRENT VALUE OF PIECE OF STATE, FUNCTION FOR UPDATING THE PIECE OF STATE]
+// }
+
+// const [counter, setCounter] = useState()
