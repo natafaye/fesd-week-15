@@ -1,88 +1,115 @@
 import { useEffect, useState } from "react"
+import ProductList from "./ProductList"
+import CreateProductForm from "./CreateProductForm"
+// import myImage from "./assets/pretend-image.png"
 
 
 export default function App() {
-    const [products, setProducts] = useState([])
+    const [productList, setProductList] = useState([])
 
-    const refreshProducts = async () => {
-        const response = await fetch("http://localhost:3004/products")
-        const freshData = await response.json()
-        setProducts(freshData)
-    }
-
-    const featuredProduct = products[0]
-    console.log(featuredProduct)
-
-    // by the way, could you do this later when you have time?
+    // Changing the tab text
     useEffect(() => {
-        refreshProducts()
-    }, []) // there's no reason to ever run again
+        document.title = productList.length + " products"
+    }, [productList])
 
-    const createProduct = async (newProduct) => {
-
-        // make that same change on the backend
-        const response = await fetch("http://localhost:3004/products", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(newProduct)
-        })
-        const newProductWithId = await response.json()
-
-        // OPTION 1
-        // make the change on the frontend
-        setProducts([...products, newProductWithId])
-
-        // OPTION 2
-        // refreshProducts()
-
-    }
+    // Loading in the data after the first render
+    useEffect(() => {
+        const fetchProducts = async () => {
+            const response = await fetch("http://localhost:3004/products")
+            const data = await response.json()
+            setProductList(data)
+        }
+        // Just a thing we do - put in the whole function and then immediately call it
+        fetchProducts() // do not wait for it, useEffect doesn't want your async junk
+    }, []) // empty dependency = run once on the first render, and never again (twice in development mode, and don't worry about it)
 
     const deleteProduct = async (idToDelete) => {
-
-        // make that same change on the backend
-        await fetch("http://localhost:3004/products/" + idToDelete, {
+        // update the data on the backend
+        const response = await fetch("http://localhost:3004/products/" + idToDelete, {
             method: "DELETE"
         })
 
-        // OPTION 1
-        // make the change on the frontend
-        setProducts(products.filter(p => p.id !== idToDelete))
+        // update the data on the frontend
+        setProductList(productList.filter(product => product.id !== idToDelete))
+    }
 
-        // OPTION 2
-        // refreshProducts()
+    const createProduct = () => {
 
     }
 
     return (
-        <div>
-            <button onClick={() => createProduct({ name: "Wheat", price: 30 })}>Create Wheat</button>
-            <h1>Featured: { featuredProduct ? featuredProduct.name : null }</h1>
-            {products.map(p => (
-                <div key={p.id}>
-                    {p.name}
-                    <button className="btn btn-danger" onClick={() => deleteProduct(p.id)}>Delete</button>
-                </div>
-            ))}
+        <div className="container mt-3">
+            <ProductList productList={productList} deleteProduct={deleteProduct}/>
+            <CreateProductForm createProduct={createProduct}/>
         </div>
     )
 }
 
 
-// props = {
-//     color: "black",
-//     size: "lg",
-//     user: { name: "Natalie", isAdmin: true }
+// function mapCallback(product) {
+//     return <li key={product.id}>{product.name} ${product.price}</li>
 // }
 
 
 
-//
-
-// const { name, isAdmin } = user
 
 
-// function getTastyFood() {
-//     return [CURRENT VALUE OF PIECE OF STATE, FUNCTION FOR UPDATING THE PIECE OF STATE]
+
+
+// const evening = () => {
+//     watchMovie() // start watching the movie but don't wait for it to finish
+//     doDishes() // while the movie is going
+//     // at some point the movie finishes
 // }
 
-// const [counter, setCounter] = useState()
+
+// const watchMovie = async () => {
+//     // takes 2 hours to watch the movie
+// }
+
+// const doDishes = () => {
+//     // takes 30 minutes to do the dishes
+// }
+
+
+
+
+// async function clickButton() {
+//     showLoading()
+//     await goGetData()
+//     stopShowingLoading()
+//     renderWithNewData()
+// }
+
+
+// async function goGetData() {
+//     // takes a long time to get the data
+// }
+
+
+
+
+
+// function calculateCoolnessScore({ howManyFriends, address, areYouDatingSomeone, age, hairColor }) {
+//     if(howManyFriends > 2) {
+
+//     }
+// }
+
+// calculateCoolnessScore({ howManyFriends: 5,  areYouDatingSomeone: true, age: 14, address: { state: "NV", city: "Reno "}, hairColor: "brown" })
+
+
+//   function getFood() {
+//     return ["spaghetti", "cake"]
+//   }
+
+//   const myFood = getFood()
+
+//   myFood[0] // "spaghetti"
+//   myFood[1] // "cake"
+
+
+//   const [meal, dessert] = getFood()
+
+//   meal // "spaghetti"
+//   dessert // "cake"
