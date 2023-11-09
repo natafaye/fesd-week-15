@@ -1,115 +1,46 @@
-import { useEffect, useState } from "react"
-import ProductList from "./ProductList"
-import CreateProductForm from "./CreateProductForm"
-// import myImage from "./assets/pretend-image.png"
-
+import { useEffect, useState } from "react";
+import UserList from "./UserList";
+import CreateUserForm from "./CreateUserForm";
 
 export default function App() {
-    const [productList, setProductList] = useState([])
+  const [userList, setUserList] = useState([])
 
-    // Changing the tab text
-    useEffect(() => {
-        document.title = productList.length + " products"
-    }, [productList])
+  const deleteUser = async (idToDelete) => {
+    // Update data on Back-End
+    await fetch("http://localhost:3005/users/" + idToDelete, {
+      method: "DELETE"
+    })
+    // Update data on Front-End
+    // Update state to have one less user in it, by working off copies
+    setUserList(userList.filter(user => user.id !== idToDelete))
+  }
 
-    // Loading in the data after the first render
-    useEffect(() => {
-        const fetchProducts = async () => {
-            const response = await fetch("http://localhost:3004/products")
-            const data = await response.json()
-            setProductList(data)
-        }
-        // Just a thing we do - put in the whole function and then immediately call it
-        fetchProducts() // do not wait for it, useEffect doesn't want your async junk
-    }, []) // empty dependency = run once on the first render, and never again (twice in development mode, and don't worry about it)
+  const createUser = async (newUserData) => {
+    // Update on Back-End
+    const response = await fetch("http://localhost:3005/users", {
+      method: "POST", 
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newUserData)
+    })
+    const createdUserWithId = await response.json()
+    // Update on Front-End
+    setUserList(userList.concat(createdUserWithId))
+  }
 
-    const deleteProduct = async (idToDelete) => {
-        // update the data on the backend
-        const response = await fetch("http://localhost:3004/products/" + idToDelete, {
-            method: "DELETE"
-        })
-
-        // update the data on the frontend
-        setProductList(productList.filter(product => product.id !== idToDelete))
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const response = await fetch("http://localhost:3005/users")
+      const fetchedUsers = await response.json()
+      setUserList(fetchedUsers)
     }
+    fetchUsers()
+  }, []) // empty dependency array = run once and never again (but in Strict Mode in development it will run twice - not a problem)
 
-    const createProduct = () => {
-
-    }
-
-    return (
-        <div className="container mt-3">
-            <ProductList productList={productList} deleteProduct={deleteProduct}/>
-            <CreateProductForm createProduct={createProduct}/>
-        </div>
-    )
+  return (
+    <div>
+      App
+      <CreateUserForm createUser={createUser}/>
+      <UserList listOfUsers={userList} allowDelete={true} deleteUser={deleteUser} />
+    </div>
+  )
 }
-
-
-// function mapCallback(product) {
-//     return <li key={product.id}>{product.name} ${product.price}</li>
-// }
-
-
-
-
-
-
-
-// const evening = () => {
-//     watchMovie() // start watching the movie but don't wait for it to finish
-//     doDishes() // while the movie is going
-//     // at some point the movie finishes
-// }
-
-
-// const watchMovie = async () => {
-//     // takes 2 hours to watch the movie
-// }
-
-// const doDishes = () => {
-//     // takes 30 minutes to do the dishes
-// }
-
-
-
-
-// async function clickButton() {
-//     showLoading()
-//     await goGetData()
-//     stopShowingLoading()
-//     renderWithNewData()
-// }
-
-
-// async function goGetData() {
-//     // takes a long time to get the data
-// }
-
-
-
-
-
-// function calculateCoolnessScore({ howManyFriends, address, areYouDatingSomeone, age, hairColor }) {
-//     if(howManyFriends > 2) {
-
-//     }
-// }
-
-// calculateCoolnessScore({ howManyFriends: 5,  areYouDatingSomeone: true, age: 14, address: { state: "NV", city: "Reno "}, hairColor: "brown" })
-
-
-//   function getFood() {
-//     return ["spaghetti", "cake"]
-//   }
-
-//   const myFood = getFood()
-
-//   myFood[0] // "spaghetti"
-//   myFood[1] // "cake"
-
-
-//   const [meal, dessert] = getFood()
-
-//   meal // "spaghetti"
-//   dessert // "cake"
