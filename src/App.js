@@ -1,46 +1,36 @@
-import { useEffect, useState } from "react";
-import UserList from "./UserList";
-import CreateUserForm from "./CreateUserForm";
+import { useEffect, useState } from "react"
 
 export default function App() {
-  const [userList, setUserList] = useState([])
-
-  const deleteUser = async (idToDelete) => {
-    // Update data on Back-End
-    await fetch("http://localhost:3005/users/" + idToDelete, {
-      method: "DELETE"
-    })
-    // Update data on Front-End
-    // Update state to have one less user in it, by working off copies
-    setUserList(userList.filter(user => user.id !== idToDelete))
-  }
-
-  const createUser = async (newUserData) => {
-    // Update on Back-End
-    const response = await fetch("http://localhost:3005/users", {
-      method: "POST", 
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(newUserData)
-    })
-    const createdUserWithId = await response.json()
-    // Update on Front-End
-    setUserList(userList.concat(createdUserWithId))
-  }
+  const [todoList, setTodoList] = useState([])
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      const response = await fetch("http://localhost:3005/users")
-      const fetchedUsers = await response.json()
-      setUserList(fetchedUsers)
+    // Wrapped the slow asynchronous code in a little baggy (another function) so React doesn't have to touch it
+    const fetchTodos = async () => {
+      const response = await fetch("http://localhost:3005/todos")
+      const freshTodos = await response.json()
+      setTodoList(freshTodos)
     }
-    fetchUsers()
-  }, []) // empty dependency array = run once and never again (but in Strict Mode in development it will run twice - not a problem)
+    fetchTodos() // immediately call the function
+  }, []) // empty dependency array so that it only runs once when the component first loads in
+  // technically in development, our component will load in twice, it's just a thing, so you'll see it twice
+
+  const deleteTodo = async (idToDelete) => {
+    // Makes the change on the backend
+    const response = await fetch("http://localhost:3005/todos/" + idToDelete, {
+      method: "DELETE"
+    })
+    // Make the change on the frontend
+    setTodoList(todoList.filter(todo => todo.id !== idToDelete))
+  }
 
   return (
     <div>
-      App
-      <CreateUserForm createUser={createUser}/>
-      <UserList listOfUsers={userList} allowDelete={true} deleteUser={deleteUser} />
+      <h3>Todos</h3>
+      <ul>
+        {todoList.map(todo => (
+          <li key={todo.id} onClick={() => deleteTodo(todo.id)}>{todo.name}</li>
+        ))}
+      </ul>
     </div>
   )
 }

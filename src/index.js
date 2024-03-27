@@ -16,20 +16,3 @@ root.render(
 //   headers: { "Content-Type": "application/json" },
 //   body: JSON.stringify(data)
 // }
-
-/* <div className="container mt-3">
-  <div className="row mb-3">
-    <div className="col">
-      <h2>Products</h2>
-    </div>
-    <div className="col">
-      <button className="btn btn-success float-end">Fetch Products</button>
-    </div>
-  </div>
-  <div className="row">
-    <div className="col">
-      <ul className="list-group">
-      </ul>
-    </div>
-  </div>
-</div> */
