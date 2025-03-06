@@ -1,39 +1,50 @@
 import { useState } from "react"
-import LetterOptions from "./components/LetterOptions"
-import Man from "./components/Man"
-import WordCard from "./components/WordCard"
-import { getRandomWord } from "./components/randomWords"
+import Board from "./Board"
+import Footer from "./Footer"
+import LowScoreTable from "./LowScoreTable"
+import Message from "./Message"
+import NameEntry from "./NameEntry"
+import { TEST_DATA } from "./testData"
 
 export default function App() {
-  const [word, setWord] = useState("follicles")
-  const [letters, setLetters] = useState(["a", "l", "c"])
+  const [messageText, setMessageText] = useState("")
+  const [playerList, setPlayerList] = useState(TEST_DATA)
+  const [currentPlayerId, setCurrentPlayerId] = useState<null | number>(null)
 
-  const resetGame = () => {
-    // set the word to a new word "rubber"
-    const newWord = getRandomWord()
-    setWord(newWord)
-  }
+  const handleStart = (name: string) => {
+    let nextPlayer = playerList.find(playerToCheck => playerToCheck.name === name)
 
-  const addLetter = (letterToAdd: string) => {
-    // if this is confusing
-    setLetters([...letters, letterToAdd])
+    if (nextPlayer === undefined) {
+      nextPlayer = { id: 5, name: name, lowScore: 1000 } // TODO: fix that id at some point
 
-    // You can totally do this
-    // const copyOfLetters = letters.slice() // [...letters]
-    // copyOfLetters.push(letterToAdd)
-    // setLetters(copyOfLetters)
+      // EVIL
+      // playerList.push(nextPlayer)
+      // FINE
+      // set the playerList to a copy of itself with the next player on the end
+      // const copyOfPlayerList = [...playerList]
+      // copyOfPlayerList.push(nextPlayer)
+      // setPlayerList(copyOfPlayerList)
+      // MAGNIFICENT
+      setPlayerList([...playerList, nextPlayer])
+    }
+    
+    // EVIL
+    // currentPlayerId = nextPlayer.id
+    // MAGNIFICENT
+    setCurrentPlayerId(nextPlayer.id)
+
+    // Rendering based on that state
+    setMessageText("Welcome " + nextPlayer.name + " Your lowest score so far is " + nextPlayer.lowScore)
   }
 
   return (
     <div>
-      <Man/>
-      <WordCard word={word}/>
-      <LetterOptions letters={letters} onLetterClick={addLetter}/>
-      <button onClick={resetGame}>New Game</button>
+      <NameEntry onNameEntered={handleStart} />
+      <Message messageText={messageText} textColor="blue" />
+      <Board />
+      <Footer />
+      <LowScoreTable playerList={playerList} />
     </div>
   )
 }
 
-
-// variables in different contexts with the same data probably should be named the same
-// variables in the same context with different data, please name those different as possible
