@@ -12,5 +12,3 @@ export default function Board() {
         </div>
     )
 }
-
-//label={<span className="text-decoration-line-through">{task.task}</span>}
