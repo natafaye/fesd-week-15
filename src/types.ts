@@ -1,5 +1,5 @@
-export type Player = {
-    id: number
-    name: string
-    lowScore: number
-}
+export type Card = {
+  id: number;
+  suit: string; // fancier option: "♠️" | "♣️" | "♦️" | "❤️"
+  value: number | string;
+};
