@@ -1,136 +1,115 @@
 import { useState } from "react"
-import CardList from "./CardList"
-import getRandomCard from "./getRandomCard"
+import Counter from "./Counter"
 
 export default function App() {
-  // You cannot add or remove from this hand (without state)
-  //const myHand = [ getRandomCard(), getRandomCard() ]
-  const [myHand, setMyHand] = useState([getRandomCard(), getRandomCard()])
-  // myHand would look something like this:
-  // const myHand = [
-  //   {
-  //     id: 2343243,
-  //     value: 4,
-  //     suit: "♣️"
-  //   },
-  //   {
-  //     id: 43243,
-  //     value: 10,
-  //     suit: "❤️"
-  //   }
-  // ]
-  const [dealerHand, setDealerHand] = useState([getRandomCard(), getRandomCard()])
 
-  // my bet piece of state
-  //const myBet = 0
-  const [bet, setBet] = useState(0)
 
-  const raiseBet = () => {
+  // DUMB VARIABLE: let color = "yellow"
+  // const [state, setState] = useState(INITIAL_VALUE)
+  const [color, setColor] = useState("white")
+
+  const makeItPink = () => {
+    // BLASPHEMY: color = "pink"
+    setColor("pink")
+  }
+
+  const makeItBlue = () => {
+    // BLASPHEMY: color = "blue"
+    setColor("blue")
+  }
+
+
+  // a piece of state called amount that starts at 0
+  const [amount, setAmount] = useState(0)
+
+  const increment = () => {
+    setAmount(amount + 1)
+  }
+
+  const decrement = () => {
+    setAmount(amount - 1)
+  }
+
+  
+  const [resources, setResources] = useState([
+    {
+      id: 0,
+      name: "Bears",
+    },
+    {
+      id: 1,
+      name: "Elk",
+    },
+    {
+      id: 2,
+      name: "Fish",
+    },
+  ])
+
+  const addHawks = () => {
+    const hawks = { id: 5, name: "Hawks" } // hard coded because we don't have forms yet
+
     // BLASPHEMY
-    // bet++
-    // GORGEOUS
-    setBet(bet + 1)
+    // resources.push(hawks)
+
+    // Show them what we want the resources array to look like WITHOUT CHANGING THE RESOURCES ARRAY
+    // A copy of the resources array with the hawks
+
+    // More lines but maybe easier to understand
+    // const copyOfResources = [...resources] // resources.slice()
+    // copyOfResources.push(hawks)
+    // setResources(copyOfResources)
+
+    // Professional streamlined way
+    setResources([...resources, hawks])
   }
 
-  const lowerBet = () => {
-    setBet(bet - 1)
+  const deleteResource = (deleteId: number) => {
+    // Professional streamlined way
+    // set the resources to a copy of resources with everything but the one we want to delete
+    setResources(resources.filter(resource => resource.id !== deleteId))
   }
 
-  const handleHit = () => {
-    // BLASPHEMY
-    // myHand.push(getRandomCard())
-
-    // We have to do this WITHOUT CHANGING THE ORIGINAL ARRAY
-    // We have to make a copy and add the card to the copy, then set the state to that updated copy
-    //setMyHand(the hand with one more card in it)
-
-    // IMPORTANT NOTE
-    // This does not make a copy
-    //const myHandCopy = myHand // <--- NO BAD
-
-
-    // THIS IS A GREAT OPTION
-    // Make a copy of the array
-    // const myHandCopy = [...myHand] // myHand.slice()
-    // myHandCopy.push(getRandomCard())
-    // // Set the myHand piece of state to the updated copy with the new card in it
-    // setMyHand( myHandCopy )
-
-    // BEAUTIFUL STREAMLINED VERSION
-    // Set my hand to a new array with all the insides of myHand and a random card on the end
-    setMyHand([...myHand, getRandomCard()])
-
-    // const user = { id: 3 }
-    // const copyOfUser = { ...user }
-  }
-
-  const hideInSleeve = (idToHide: number) => {
-    // Set myHand to a copy of myHand without the card that matches the idToHide
-
-    // LONG HANDED WAY OF DOING IT
-    // const myHandCopy = [...myHand]
-    // const indexToDelete = myHandCopy.findIndex(card => card.id === idToHide)
-    // myHandCopy.splice(indexToDelete, 1)
-    // setMyHand(myHandCopy)
-
-    // SHORTHANDED WAY
-    // setSomeArray(someArray.filter(
-    //   item => item.id !== idToDelete
-    // ))
-    setMyHand(myHand.filter(
-      card => card.id !== idToHide
-    ))
-  }
-
-  const swapWithA = (swapId: number) => {
-    // Set my hand to a copy of the array with the card with the swapId replaced with a copy of itself with the value set to A
-
-    // Longhanded
-    // const copyOfMyHand = [...myHand]
-    // const swapCard = myHand.find(card => card.id === swapId)! // <-- Typescript trick to say this won't be undefined
-    // const copyOfSwapCard = { ...swapCard }
-    // copyOfSwapCard.value = "A"
-    // const indexToReplace = copyOfMyHand.indexOf(swapCard)
-    // copyOfMyHand[indexToReplace] = copyOfSwapCard
-    // setMyHand(copyOfMyHand)
-
-    // Shorthand
-    // setSomeArray(someArray.map(item => (
-    //   item.id !== idToUpdate ? item : {
-    //     ...item,
-    //     property: newValue
-    //   }
-    // )))
-    setMyHand(myHand.map(card => (
-      card.id !== swapId ? card : {
-        ...card,
-        value: "A"
-      }
-    )))
-  }
-
-  const handleStand = () => {
-    alert("Standing!")
-  }
-
-  // Return what that part of the page should look like right now (eventually based on the state)
   return (
-    <div className="container mt-3">
-      <h2>Blackjack</h2>
-      <p>
-        Betting
-        <button className="btn btn-primary" onClick={raiseBet}>⬆️</button>
-        <span className="p-3">{bet}</span>
-        <button className="btn btn-primary" onClick={lowerBet}>⬇️</button>
-      </p>
-      <div>
-        <h4>Dealer</h4>
-        <CardList cards={dealerHand} canCheat={false} onHide={hideInSleeve} onSwap={swapWithA} />
-        <button className="btn btn-success mt-4" onClick={handleHit}>Hit Me</button>
-        <button className="btn btn-primary mt-4" onClick={handleStand}>Stand</button>
-        <h4>You</h4>
-        <CardList cards={myHand} canCheat={true} onHide={hideInSleeve} onSwap={swapWithA} />
-      </div>
+    <div className="mb-3 p-4" style={{
+      backgroundColor: color
+    }}>
+      <button onClick={addHawks}>Add Hawks</button>
+      <button onClick={makeItPink}>Make it Pink</button>
+      <button onClick={makeItBlue}>Make it Blue</button>
+
+      {resources.map(resource => (
+        <Counter key={resource.name}
+          label={resource.name}
+          id={resource.id}
+          // I would normally call this the same (amount, increment, decrement)
+          count={amount}
+          add={increment}
+          subtract={decrement}
+          // This is what I would normally do
+          deleteResource={deleteResource}
+        />
+      ))}
+      Total Resources: {amount * 3}
+      {/* 
+        <Counter label="Bears" count={} add={} subtract={}/>
+        <Counter label="Elk" count={} add={} subtract={}/>
+        <Counter label="Fish" count={} add={} subtract={}/> 
+      */}
     </div>
   )
 }
+
+// Cosplaying as HTML
+// <Counter label="Fish" amount={1}/>
+// Translate it from HTML attributes to a Javascript object with properties
+// Counter({
+//   label: "Bears",
+//   count: 0,
+//   add: () => { setAmount(amount + 1) }
+//   subtract: () => { setAmount(amount - 1) }
+//   deleteResource: () => { fdsfdsfds }
+// })
+
+
+// Props are parameters cosplaying as HTML attributes
